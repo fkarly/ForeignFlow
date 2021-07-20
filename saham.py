@@ -59,17 +59,15 @@ def getData(date):
         chromeInitialization = True
         url = "https://www.idx.co.id/data-pasar/ringkasan-perdagangan/ringkasan-saham"
         googleChrome = webdriver.Chrome()
-        # googleChrome.minimize_window()
+        googleChrome.minimize_window()
         googleChrome.get(url)
     googleChrome.find_element_by_id("dateFilter").click()
     string = "//span[@aria-label = '" + date + "']"
     if(flag == 1):
         googleChrome.find_element_by_xpath("//span[@class = 'flatpickr-prev-month']").click()
         flag = 2
-    print(string)
     time.sleep(0.5)
     googleChrome.find_element_by_xpath(string).click()
-    print("masuk")
     googleChrome.find_element_by_xpath("/html/body/main/div[2]/div/div[3]/a/span").click()
 
 #########################################################################
@@ -211,13 +209,56 @@ def correlation(deltaList, foreign, sizeOfData):
     correlation = correlation / (dev1*dev2)
     return correlation
 
+def stockList():
+    day = 0
+    string = "Ringkasan Saham-" + getDate(day,0) + ".xlsx"
+    while(os.path.isfile(string) == False):
+        day += 1
+        string = "Ringkasan Saham-" + getDate(day,0) + ".xlsx"
+    stockFile = pd.read_excel(string, skiprows = 1)
+    print("\n+---------------------------------------+")
+    print("\n|CODE  COMPANY NAME                     |")
+    print("\n+---------------------------------------+\n")
+    i = 0
+    while(True):
+        try:
+            print(stockFile["Kode Saham"].iloc[i] + "   "  + stockFile["Nama Perusahaan"].iloc[i])
+            i = i + 1
+        except:
+            print("\n+---------------------------------------+")
+            print("\n|              END OF STOCK             |")
+            print("\n+---------------------------------------+\n")
+            break
+
+def codeCheck(stockName):
+    day = 0
+    string = "Ringkasan Saham-" + getDate(day,0) + ".xlsx"
+    while(os.path.isfile(string) == False):
+        day += 1
+        string = "Ringkasan Saham-" + getDate(day,0) + ".xlsx"
+    stockFile = pd.read_excel(string, skiprows = 1)
+    i = 0
+    while(True):
+        try:
+            if(stockFile["Kode Saham"].iloc[i] == stockName):
+                displayData(stockName)
+            i = i + 1
+        except:
+            print("Invalid Stock Code, Please try again!")
+            break
+
+
+
 def main():
     checkData()
     while(True):
         stockName = input("Please Enter the Stock Code: \n").upper()
-        if(stockName == "EXIT"):
+        if(stockName == "EXIT" || stockName == "quit"):
             sys.exit(0)
-        displayData(stockName)
+        elif(stockName == "LS"):
+            stockList()
+        else:
+            codeCheck(stockName)
 
 if __name__ == "__main__":
     main()
