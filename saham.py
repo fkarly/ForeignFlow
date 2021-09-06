@@ -14,6 +14,7 @@ import os
 from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib import ticker
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from pandas.tseries.offsets import BDay
 
 # pip install xlrd pandas, requests, matplotlib, timedelta, selenium, mplcursors
@@ -67,8 +68,17 @@ def getData(date):
         googleChrome.find_element_by_xpath("//span[@class = 'flatpickr-prev-month']").click()
         flag = 2
     time.sleep(0.5)
-    googleChrome.find_element_by_xpath(string).click()
-    googleChrome.find_element_by_xpath("/html/body/main/div[2]/div/div[3]/a/span").click()
+    try:
+        googleChrome.find_element_by_xpath(string).click()
+    except:
+        googleChrome.find_element_by_xpath("//span[@class = 'flatpickr-prev-month']").click()
+        time.sleep(0.5)
+        googleChrome.find_element_by_xpath(string).click()
+        flag = 2
+    try:
+        googleChrome.find_element_by_xpath("/html/body/main/div[2]/div/div[3]/a").send_keys(Keys.ENTER)
+    except:
+        googleChrome.find_element_by_xpath("/html/body/div[1]/div[3]/button").send_keys(Keys.ENTER)
 
 #########################################################################
 # Copy the file from \downloads folder to \python folder, if necessary  #
@@ -253,7 +263,7 @@ def main():
     checkData()
     while(True):
         stockName = input("Please Enter the Stock Code: \n").upper()
-        if(stockName == "EXIT" || stockName == "quit"):
+        if(stockName == "EXIT" or stockName == "quit"):
             sys.exit(0)
         elif(stockName == "LS"):
             stockList()
